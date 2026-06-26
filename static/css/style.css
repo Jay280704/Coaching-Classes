@@ -454,8 +454,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .logo-showcase-svg {
-    width: 320px;
-    height: 320px;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    max-height: 320px;
     object-fit: contain;
     filter: drop-shadow(0 10px 20px rgba(var(--primary-rgb), 0.15));
     animation: floatGraphic 5s ease-in-out infinite;
@@ -477,9 +479,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .courses-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
 }
+
 
 .course-card {
     background: var(--bg-surface);
