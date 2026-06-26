@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Admin Portal Access | Kolekar's Academy</title>
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        .auth-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .back-to-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .back-to-home:hover {
+            color: var(--primary);
+        }
+
+        .auth-form-container {
+            display: none;
+        }
+
+        .auth-form-container.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="back-to-home">← Back to Homepage</a>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <!-- Brand Logo -->
+            <div class="auth-logo">
+                <img class="logo-icon" style="width:40px;height:40px;" src="{{ url_for('static', filename='images/logo.png') }}" alt="Kolekar's Academy Logo">
+                <div class="logo-text">
+                    <h3 style="font-family: var(--font-heading); font-weight:800; font-size:1.2rem; line-height:1; color: var(--text-main);">KOLEKAR'S ACADEMY</h3>
+                </div>
+            </div>
+
+            <div id="auth-alert" class="form-message"></div>
+
+            <!-- LOGIN FORM -->
+            <div id="login-container" class="auth-form-container active">
+                <div class="auth-header">
+                    <h2>Admin Portal Access</h2>
+                    <p>Enter administrator email and credentials to enter</p>
+                </div>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Admin Email Address</label>
+                        <input type="email" id="login-email" class="form-control" placeholder="admin@kolekaracademy.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+                        <div style="text-align: right; margin-top: 6px;">
+                            <a href="#" onclick="showForgotForm(true)" style="font-size: 0.85rem; color: var(--primary); text-decoration: none; font-weight: 500;">Forgot Password?</a>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+                </form>
+            </div>
+
+            <!-- FORGOT PASSWORD FORM -->
+            <div id="forgot-container" class="auth-form-container">
+                <div class="auth-header">
+                    <h2>Admin Reset Password</h2>
+                    <p>Enter your details to instantly update admin password</p>
+                </div>
+                <form id="forgot-form">
+                    <div class="form-group">
+                        <label for="forgot-email">Admin Email Address</label>
+                        <input type="email" id="forgot-email" class="form-control" placeholder="admin@kolekaracademy.com" required>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="forgot-phone">Admin Reset Secret Key</label>
+                        <input type="password" id="forgot-phone" class="form-control" placeholder="Secret Key (admin123)" required>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="forgot-password">New Password</label>
+                        <input type="password" id="forgot-password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">Update Password</button>
+                    <div style="text-align: center; margin-top: 1.5rem;">
+                        <a href="#" onclick="showForgotForm(false)" style="font-size: 0.9rem; color: var(--text-muted); text-decoration: none; transition: var(--transition);" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">← Back to Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_auth.js') }}"></script>
+</body>
+</html>

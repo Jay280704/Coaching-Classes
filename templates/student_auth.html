@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Student Portal Login & Register | Kolekar's Academy</title>
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        .auth-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            padding: 3rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 1rem 0;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .auth-form-container {
+            display: none;
+        }
+
+        .auth-form-container.active {
+            display: block;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .password-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .back-to-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .back-to-home:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="back-to-home">← Back to Homepage</a>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <!-- Brand Logo -->
+            <div class="auth-logo">
+                <img class="logo-icon" style="width:40px;height:40px;" src="{{ url_for('static', filename='images/logo.png') }}" alt="Kolekar's Academy Logo">
+                <div class="logo-text">
+                    <h3 style="font-family: var(--font-heading); font-weight:800; font-size:1.2rem; line-height:1; color: var(--text-main);">KOLEKAR'S ACADEMY</h3>
+                </div>
+            </div>
+
+            <!-- Tab Headers -->
+            <div class="auth-tabs">
+                <div id="tab-login-btn" class="auth-tab active" onclick="switchTab('login')">Sign In</div>
+                <div id="tab-register-btn" class="auth-tab" onclick="switchTab('register')">New Register</div>
+            </div>
+
+            <div id="auth-alert" class="form-message"></div>
+
+            <!-- LOGIN FORM -->
+            <div id="login-container" class="auth-form-container active">
+                <div class="auth-header">
+                    <h2>Student Sign In</h2>
+                    <p>Enter your student account details to access your portal</p>
+                </div>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Registered Email</label>
+                        <input type="email" id="login-email" class="form-control" placeholder="student@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+                        <div style="text-align: right; margin-top: 6px;">
+                            <a href="#" onclick="showForgotForm(true)" style="font-size: 0.85rem; color: var(--primary); text-decoration: none; font-weight: 500;">Forgot Password?</a>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+                </form>
+            </div>
+
+            <!-- FORGOT PASSWORD FORM -->
+            <div id="forgot-container" class="auth-form-container">
+                <div class="auth-header">
+                    <h2>Reset Password</h2>
+                    <p>Enter your details to instantly update your password</p>
+                </div>
+                <form id="forgot-form">
+                    <div class="form-group">
+                        <label for="forgot-email">Registered Email</label>
+                        <input type="email" id="forgot-email" class="form-control" placeholder="student@example.com" required>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="forgot-phone">Registered Phone Number</label>
+                        <input type="tel" id="forgot-phone" class="form-control" placeholder="10-digit phone number" required>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="forgot-password">New Password</label>
+                        <input type="password" id="forgot-password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">Update Password</button>
+                    <div style="text-align: center; margin-top: 1.5rem;">
+                        <a href="#" onclick="showForgotForm(false)" style="font-size: 0.9rem; color: var(--text-muted); text-decoration: none; transition: var(--transition);" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">← Back to Login</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- REGISTRATION FORM -->
+            <div id="register-container" class="auth-form-container">
+                <div class="auth-header">
+                    <h2>Student Registration</h2>
+                    <p>Register to apply for admissions and batch enrollment</p>
+                </div>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-name">Student Full Name</label>
+                        <input type="text" id="register-name" class="form-control" placeholder="Jay Jadhav" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email Address</label>
+                        <input type="email" id="register-email" class="form-control" placeholder="jay.jadhav@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-phone">Mobile Phone Number</label>
+                        <input type="tel" id="register-phone" class="form-control" placeholder="10-digit number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" class="form-control" placeholder="Min 8 characters" required>
+                        <div class="password-hint">Must contain at least 8 characters, letters and numbers.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm">Confirm Password</label>
+                        <input type="password" id="register-confirm" class="form-control" placeholder="Re-enter password" required>
+                    </div>
+                    <button type="submit" class="btn btn-accent" style="width: 100%; margin-top: 1rem;">Submit Registration</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/student_auth.js') }}"></script>
+</body>
+</html>

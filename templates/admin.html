@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Admin Portal | Kolekar's Academy</title>
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- ==========================================
+             SIDEBAR NAVIGATION
+             ========================================== -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo-wrapper">
+                    <img class="logo-icon" style="width:36px;height:36px;" src="{{ url_for('static', filename='images/logo.png') }}" alt="Kolekar's Academy Logo">
+                    <div class="logo-text">
+                        <h4 style="font-family: var(--font-heading); font-weight:800; font-size:1.1rem; line-height:1;">KOLEKAR'S</h4>
+                        <span class="logo-sub" style="font-size:0.7rem; margin:0;">ACADEMY</span>
+                    </div>
+                </a>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="admin-only">
+                    <a onclick="showView('overview')" id="nav-overview" class="sidebar-link active">
+                        <i>📊</i> <span>Overview</span>
+                    </a>
+                </li>
+                <li class="admin-only">
+                    <a onclick="showView('students')" id="nav-students" class="sidebar-link">
+                        <i>🧑‍🎓</i> <span>Manage Students</span>
+                    </a>
+                </li>
+                <li>
+                    <a onclick="showView('attendance')" id="nav-attendance" class="sidebar-link">
+                        <i>📅</i> <span>Track Attendance</span>
+                    </a>
+                </li>
+                <li>
+                    <a onclick="showView('tests')" id="nav-tests" class="sidebar-link">
+                        <i>🏆</i> <span>Mock Test Panel</span>
+                    </a>
+                </li>
+                <li>
+                    <a onclick="showView('doubts')" id="nav-doubts" class="sidebar-link">
+                        <i>❓</i> <span>Doubt Responses</span>
+                    </a>
+                </li>
+                <li class="admin-only">
+                    <a onclick="showView('enquiries')" id="nav-enquiries" class="sidebar-link">
+                        <i>📩</i> <span>Admissions Inbox</span>
+                    </a>
+                </li>
+                <li class="admin-only">
+                    <a onclick="showView('toppers')" id="nav-toppers" class="sidebar-link">
+                        <i>🏆</i> <span>Manage Toppers</span>
+                    </a>
+                </li>
+                <li class="admin-only">
+                    <a onclick="showView('teachers')" id="nav-teachers" class="sidebar-link">
+                        <i>🎓</i> <span>Manage Teachers</span>
+                    </a>
+                </li>
+                <li class="admin-only">
+                    <a onclick="showView('courses')" id="nav-courses" class="sidebar-link">
+                        <i>📚</i> <span>Manage Courses</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-summary">
+                    <div class="user-avatar" style="background:var(--accent);">K</div>
+                    <div class="user-info">
+                        <span id="admin-display-name" class="user-name">Prof. Kolekar</span>
+                        <span class="user-role" style="color:var(--accent);">Admin</span>
+                    </div>
+                </div>
+                <a onclick="handleLogout()" class="sidebar-link" style="color: var(--primary);">
+                    <i>🚪</i> <span>Sign Out</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- ==========================================
+             MAIN CONTENT AREA
+             ========================================== -->
+        <main class="main-content">
+            <!-- TOP BAR -->
+            <div class="top-bar">
+                <div class="top-bar-title">
+                    <h1 id="view-title">Admin Command Center</h1>
+                    <p id="view-subtitle">Monitor and update academic registries</p>
+                </div>
+            </div>
+
+            <!-- 1. OVERVIEW VIEW -->
+            <div id="view-overview" class="dashboard-view active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-details">
+                            <h3>Total Students</h3>
+                            <span id="stat-total-students" class="stat-number">0</span>
+                        </div>
+                        <span class="stat-icon">🎓</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-details">
+                            <h3>Pending Registrations</h3>
+                            <span id="stat-pending" class="stat-number" style="color:var(--accent);">0</span>
+                        </div>
+                        <span class="stat-icon">⏳</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-details">
+                            <h3>Open Doubts</h3>
+                            <span id="stat-open-doubts" class="stat-number" style="color:var(--primary);">0</span>
+                        </div>
+                        <span class="stat-icon">🤔</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-details">
+                            <h3>Unresolved Enquiries</h3>
+                            <span id="stat-enquiries" class="stat-number">0</span>
+                        </div>
+                        <span class="stat-icon">📨</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid" style="grid-template-columns: 1fr;">
+                    <div class="panel-card">
+                        <h3 class="panel-title">System Status & Quick Actions</h3>
+                        <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Use the side navigation options to perform registration approvals, allocate student batches, submit replies to queries, record weekly exam outputs, or manage contact forms.</p>
+                        <div style="display:flex; gap:1rem;">
+                            <button onclick="showView('students')" class="btn btn-primary">Approve Registrations</button>
+                            <button onclick="showView('tests')" class="btn btn-secondary">Manage Mock Tests</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. MANAGE STUDENTS VIEW -->
+            <div id="view-students" class="dashboard-view">
+                <div class="panel-card">
+                    <h3 class="panel-title">Active and Pending Admissions</h3>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Enrolled Batch</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-students-table-body">
+                                <tr>
+                                    <td colspan="6" class="text-center" style="padding:2rem;">Loading student database...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 4. DOUBT RESPONSES VIEW -->
+            <div id="view-doubts" class="dashboard-view">
+                <div class="panel-card">
+                    <h3 class="panel-title">Doubt Resolver Center</h3>
+                    <div id="admin-doubts-container" class="doubt-list">
+                        <div class="text-center" style="padding:2rem; color:var(--text-muted);">Loading doubts log...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. ADMISSIONS INBOX VIEW -->
+            <div id="view-enquiries" class="dashboard-view">
+                <div class="panel-card">
+                    <h3 class="panel-title">Admissions & Contact Inquiries</h3>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Name</th>
+                                    <th>Email / Phone</th>
+                                    <th>Course Interest</th>
+                                    <th>Query Message</th>
+                                    <th>State</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-enquiries-table-body">
+                                <tr>
+                                    <td colspan="7" class="text-center" style="padding:2rem;">Loading inquiries list...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5b. MANAGE TOPPERS VIEW -->
+            <div id="view-toppers" class="dashboard-view">
+                <div class="panel-card" style="margin-bottom: 2rem;">
+                    <h3 class="panel-title">Add New Class Topper</h3>
+                    <form id="add-topper-form" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="topper-name" style="font-weight: 500;">Topper Full Name</label>
+                                <input type="text" id="topper-name" name="name" class="form-control" placeholder="e.g. Priyesh Shah" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="topper-score" style="font-weight: 500;">Score / Rank</label>
+                                <input type="text" id="topper-score" name="score" class="form-control" placeholder="e.g. 99.92 %ile / AIR 14" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="topper-exam" style="font-weight: 500;">Exam Name</label>
+                                <input type="text" id="topper-exam" name="exam" class="form-control" placeholder="e.g. JEE Advanced" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="topper-year" style="font-weight: 500;">Passing Year</label>
+                                <input type="text" id="topper-year" name="year" class="form-control" placeholder="e.g. 2026" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="topper-photo" style="font-weight: 500;">Upload Topper Photo</label>
+                            <input type="file" id="topper-photo" name="photo" class="form-control" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Upload & Add Topper</button>
+                    </form>
+                </div>
+
+                <div class="panel-card">
+                    <h3 class="panel-title">Current Academy Toppers</h3>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Photo</th>
+                                    <th>Name</th>
+                                    <th>Score / Rank</th>
+                                    <th>Exam</th>
+                                    <th>Year</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-toppers-table-body">
+                                <tr>
+                                    <td colspan="6" class="text-center" style="padding:2rem;">Loading toppers...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. ATTENDANCE VIEW -->
+            <div id="view-attendance" class="dashboard-view">
+                <div class="panel-card">
+                    <h3 class="panel-title">Track Batch Attendance</h3>
+                    <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; background: rgba(0,0,0,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                        <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                            <label for="attendance-batch-select" style="margin-bottom: 0.5rem; font-weight: 500;">Select Academic Batch</label>
+                            <select id="attendance-batch-select" class="form-control" onchange="loadAttendanceList()"></select>
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                            <label for="attendance-date" style="margin-bottom: 0.5rem; font-weight: 500;">Select Date</label>
+                            <input type="date" id="attendance-date" class="form-control" onchange="loadAttendanceList()">
+                        </div>
+                    </div>
+                    
+                    <div id="attendance-alert" class="form-message" style="margin-bottom: 1.5rem;"></div>
+
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Attendance Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-table-body">
+                                <tr>
+                                    <td colspan="2" class="text-center" style="padding:2rem;">Please select a batch and date.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="attendance-actions" style="margin-top: 1.5rem; text-align: right; display: none;">
+                        <button onclick="saveAttendance()" class="btn btn-primary">Save Batch Attendance</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. MOCK TEST PANEL VIEW -->
+            <div id="view-tests" class="dashboard-view">
+                <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem;">
+                    <button class="btn btn-primary" onclick="toggleTestPanel('list')">Test List & Submissions</button>
+                    <button class="btn btn-accent" onclick="toggleTestPanel('create')">Create New Mock Test</button>
+                </div>
+
+                <!-- Test List & Submissions Section -->
+                <div id="test-list-panel" class="panel-card">
+                    <h3 class="panel-title">Active Mock Tests & Submissions</h3>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Test Title</th>
+                                    <th>Target Batch</th>
+                                    <th>Duration</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-tests-table-body">
+                                <tr>
+                                    <td colspan="5" class="text-center" style="padding:2rem;">Loading mock tests...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Selected Test Submissions Table -->
+                    <div id="test-submissions-container" style="margin-top: 3rem; display: none; background: rgba(0,0,0,0.01); padding: 2rem; border-radius: 16px; border: 1px solid var(--border-color);">
+                        <h4 id="submissions-panel-title" style="font-size: 1.2rem; margin-bottom: 1.5rem; color: var(--text-main);">Submissions for Test</h4>
+                        <div class="table-wrapper">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Student Name</th>
+                                        <th>Score</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="test-submissions-table-body">
+                                    <tr>
+                                        <td colspan="4" class="text-center" style="padding:1.5rem;">No submissions yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Creator Section -->
+                <div id="test-create-panel" class="panel-card" style="display: none;">
+                    <h3 class="panel-title">Create Mock Test</h3>
+                    <div id="test-create-alert" class="form-message" style="margin-bottom: 1.5rem;"></div>
+                    
+                    <form id="test-creator-form">
+                        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="flex: 1; min-width: 200px;">
+                                <label for="test-title">Test Title</label>
+                                <input type="text" id="test-title" class="form-control" placeholder="Mock Test 1: Calculus Basics" required>
+                            </div>
+                            <div class="form-group" style="flex: 1; min-width: 200px;">
+                                <label for="test-subject">Subject</label>
+                                <select id="test-subject" class="form-control" required>
+                                    <option value="Maths">Mathematics (Maths)</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="Science">Science (Class 10)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                            <div class="form-group" style="flex: 1; min-width: 200px;">
+                                <label for="test-batch-select">Target Batch</label>
+                                <select id="test-batch-select" class="form-control" required></select>
+                            </div>
+                            <div class="form-group" style="flex: 1; min-width: 200px;">
+                                <label for="test-duration">Duration (Minutes)</label>
+                                <input type="number" id="test-duration" class="form-control" placeholder="60" required min="5">
+                            </div>
+                        </div>
+
+                        <!-- Questions Builder -->
+                        <div style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                            <h4 style="font-size: 1.2rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                <span>Mock Questions</span>
+                                <button type="button" class="btn btn-accent" style="padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="addCreatorQuestion()">+ Add Question</button>
+                            </h4>
+                            
+                            <div id="questions-builder-container">
+                                <!-- Dynamic questions inserted here -->
+                            </div>
+                        </div>
+
+                        <div style="text-align: right; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                            <button type="submit" class="btn btn-primary" style="padding: 0.8rem 2.5rem;">Publish Mock Test</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 8. MANAGE TEACHERS VIEW -->
+            <div id="view-teachers" class="dashboard-view">
+                <div class="panel-card" style="margin-bottom: 2rem;">
+                    <h3 class="panel-title">Add New Teacher Account</h3>
+                    <div id="teacher-create-alert" class="form-message" style="margin-bottom: 1.5rem;"></div>
+                    <form id="add-teacher-form">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="teacher-name" style="font-weight: 500;">Teacher Full Name</label>
+                                <input type="text" id="teacher-name" class="form-control" placeholder="e.g. Prof. R. Deshmukh" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="teacher-email" style="font-weight: 500;">Email Address</label>
+                                <input type="email" id="teacher-email" class="form-control" placeholder="e.g. physics@kolekaracademy.com" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="teacher-password" style="font-weight: 500;">Password</label>
+                                <input type="password" id="teacher-password" class="form-control" placeholder="Min 8 chars, letters + numbers" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="teacher-subject" style="font-weight: 500;">Designated Subject</label>
+                                <select id="teacher-subject" class="form-control" required>
+                                    <option value="">Select Subject</option>
+                                    <option value="Maths">Maths</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Biology">Biology</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Create Teacher Account</button>
+                    </form>
+                </div>
+
+                <div class="panel-card">
+                    <h3 class="panel-title">Current Academy Teachers</h3>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Subject</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-teachers-table-body">
+                                <tr>
+                                    <td colspan="4" class="text-center" style="padding:2rem;">Loading teachers list...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. MANAGE COURSES VIEW -->
+            <div id="view-courses" class="dashboard-view">
+                <div class="panel-card">
+                    <div class="panel-title">
+                        <span>Academy Course Programs</span>
+                        <button onclick="openCourseModal()" class="btn btn-primary" style="padding:0.5rem 1.2rem;">+ Add New Course</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Course Name</th>
+                                    <th>Duration</th>
+                                    <th>Fees</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-courses-table-body">
+                                <tr>
+                                    <td colspan="4" class="text-center" style="padding:2rem;">Loading course registry...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================
+         ANSWER DOUBT MODAL
+         ========================================== -->
+    <div id="answer-modal" class="modal-backdrop">
+        <div class="modal-box">
+            <button onclick="closeAnswerModal()" class="modal-close-btn">&times;</button>
+            <h3 class="modal-title">Answer Student Doubt</h3>
+            <div id="answer-alert" class="form-message" style="margin-bottom:1rem;"></div>
+            <div style="margin-bottom:1.5rem;">
+                <h4 id="answer-modal-student" style="font-size:0.95rem; color:var(--accent); margin-bottom:0.3rem;">Student: John Doe</h4>
+                <h4 id="answer-modal-title" style="font-size:1.1rem; margin-bottom:0.5rem;">Kinematics Doubt</h4>
+                <p id="answer-modal-desc" style="color:var(--text-muted); font-size:0.95rem; white-space:pre-wrap; background:rgba(255,255,255,0.02); padding:1rem; border-radius:8px; border:1px solid var(--border-color);"></p>
+            </div>
+            <form id="answer-form">
+                <input type="hidden" id="answer-doubt-id">
+                <div class="form-group">
+                    <label for="answer-text">Write Structured Solution</label>
+                    <textarea id="answer-text" class="form-control" placeholder="Provide mathematical equations or concept explanations here" required style="min-height:180px;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Submit Solution to Student</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         COURSE CREATE / EDIT MODAL
+         ========================================== -->
+    <div id="course-modal" class="modal-backdrop">
+        <div class="modal-box" style="max-width: 600px;">
+            <button onclick="closeCourseModal()" class="modal-close-btn">&times;</button>
+            <h3 id="course-modal-title" class="modal-title">Add New Course</h3>
+            <div id="course-modal-alert" class="form-message" style="margin-bottom:1rem;"></div>
+            <form id="course-form">
+                <input type="hidden" id="course-edit-id">
+                <div class="form-group">
+                    <label for="course-name">Course Program Name</label>
+                    <input type="text" id="course-name" class="form-control" placeholder="e.g. JEE Masterclass (Physics, Chemistry, Maths)" required>
+                </div>
+                <div class="form-group">
+                    <label for="course-desc">Program Description</label>
+                    <textarea id="course-desc" class="form-control" placeholder="Describe the course curriculum, target audience, and key benefits..." style="min-height: 100px;" required></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="course-fees">Tuition Investment (₹)</label>
+                        <input type="number" id="course-fees" class="form-control" placeholder="e.g. 85000" required min="0">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="course-duration">Duration</label>
+                        <input type="text" id="course-duration" class="form-control" placeholder="e.g. 24 Months" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="course-syllabus">Syllabus Highlights (comma-separated)</label>
+                    <textarea id="course-syllabus" class="form-control" placeholder="e.g. Physics (Mechanics, Optics), Chemistry (Organic), Maths (Calculus)" style="min-height: 80px;" required></textarea>
+                </div>
+                <button type="submit" id="btn-course-submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Create Course Program</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>
