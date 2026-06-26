@@ -1342,21 +1342,23 @@ def seed_database():
         db.session.commit()
         print("Database seeded with default batches.")
 
+with app.app_context():
+    db.create_all()
+    # Safe migration: Add 'subject' column to 'users' table if missing
+    try:
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        if 'users' in inspector.get_table_names():
+            columns = [c['name'] for c in inspector.get_columns('users')]
+            if 'subject' not in columns:
+                with db.engine.begin() as conn:
+                    conn.execute(db.text("ALTER TABLE users ADD COLUMN subject VARCHAR(100) NULL;"))
+                print("Successfully added missing column 'subject' to 'users' table.")
+    except Exception as e:
+        print("Auto-migration warning:", e)
+    seed_database()
+
 # Server boot up
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        # Safe migration: Add 'subject' column to 'users' table if missing
-        try:
-            from sqlalchemy import inspect
-            inspector = inspect(db.engine)
-            if 'users' in inspector.get_table_names():
-                columns = [c['name'] for c in inspector.get_columns('users')]
-                if 'subject' not in columns:
-                    with db.engine.begin() as conn:
-                        conn.execute(db.text("ALTER TABLE users ADD COLUMN subject VARCHAR(100) NULL;"))
-                    print("Successfully added missing column 'subject' to 'users' table.")
-        except Exception as e:
-            print("Auto-migration warning:", e)
-        seed_database()
     app.run(debug=True)
+
