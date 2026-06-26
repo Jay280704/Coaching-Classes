@@ -14,6 +14,13 @@ app = Flask(__name__)
 
 # Auto-detect MySQL credentials and create database if not exists
 def get_mysql_uri():
+    # If a full database URL is provided in the environment (e.g. from Render/Aiven/CleverCloud)
+    env_db_uri = os.environ.get('DATABASE_URL')
+    if env_db_uri:
+        if env_db_uri.startswith('mysql://'):
+            env_db_uri = env_db_uri.replace('mysql://', 'mysql+pymysql://', 1)
+        return env_db_uri
+
     host = '127.0.0.1'
     user = 'root'
     passwords = ['', 'root', 'password', 'admin', 'admin123', '1234', '123456']
